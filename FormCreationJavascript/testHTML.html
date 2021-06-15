@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<body>
+<form action="/action_page.php" method="post">
+    Intended Tempurature: <input type="text" id = "frm1" name="inputTempinput" value="32">
+</form>
+<form>
+    <select id="inputTemp">
+      <option>Fahrenheit</option>
+      <option>Celcius</option>
+      <option>Kelvin</option>
+      <option>Rankine</option>
+    </select>
+    </form>
+<form  action="/action_page.php" method="post">
+    Student Tempurature: <input type="text" id = "frm2" name="intendTempinput" value="32">
+  </form>
+
+    <form>
+        <select id="intendTemp">
+          <option>Fahrenheit</option>
+          <option>Celcius</option>
+          <option>Kelvin</option>
+          <option>Rankine</option>
+        </select>
+        </form>
+    <form>
+        <select id="itemSheet">
+        <option>0</option>
+        </select>
+        </form>
+        <form onsubmit="download(this['name'].value)">
+            <input type="text" name="name" value="FileName.txt">
+            
+            <input type="submit" value="Download"></form>
+<p id="outputCorrect">inCorrect</p>
+<button onclick="convert()">Input</button>
+<button onclick="removeTableCell()">Remove answer i</button>
+
+<table id="fillSheet" style="border: 1px solid black">
+    <tr>
+        <td>Input Temperature</td>
+        <td>Target Units</td>
+        <td>Student Response</td>
+        <td>Grade</td>
+      </tr>
+  </table>
+
+<script>
+    let i = 0;
+    const fs = require('fs');
+
+
+    function insertItem(inputT,inputNumber,targetTmp,targetNumber, correctness) {
+  var x = document.getElementById("fillSheet").insertRow(i+1);
+  let a = x.insertCell(0);
+  let b = x.insertCell(1);
+  let c = x.insertCell(2);
+  let d = x.insertCell(3);
+  
+
+  a.innerHTML = inputNumber +' ' +  inputT + ' ';
+  b.innerHTML = targetTmp + ' ';
+  c.innerHTML = targetNumber + ' ';
+  d.innerHTML = correctness + '|';
+if(i == 0){
+    var f = document.getElementById("itemSheet");
+    f[0].text = 1;
+}else{
+   
+  var f = document.getElementById("itemSheet");
+  let option = document.createElement("option");
+  option.text = i+1;
+  let q = f.add(option,f[i]);
+}
+ 
+
+
+  i++;
+}
+
+function alterTableCell(inputT,inputNumber,targetTmp,targetNumber, correctness){
+    var x = document.getElementById("itemSheet").selectedIndex;
+    
+    if(x < i){
+        var q = document.getElementById("fillSheet").rows[x].cells;
+        x[0] = inputNumber +' ' + inputT;
+        x[1] = targetTmp;
+        x[2] = targetNumber;
+        x[3] = correctness;
+    }
+}
+
+function removeTableCell(){
+    
+
+    let item1 = document.getElementById("itemSheet").selectedIndex;
+    var x = document.getElementById("itemSheet");
+    if(document.getElementById("itemSheet").selectedIndex < 1)
+    {
+    return;       
+    }
+    else
+    {
+    x.remove(x.selectedIndex);
+    var f = document.getElementById("fillSheet").deleteRow(item1+1);
+    if(item1+1 < i){
+    for (let index = item1; index < i; index++) 
+    {
+        x[index].text = index+1;
+    }
+    i--;
+}
+    }
+}
+
+
+
+function download(filename) {
+  var pom = document.createElement('a');
+  pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + 
+encodeURIComponent(document.getElementById("fillSheet").textContent.replace(/\|/g, '\n')));
+  pom.setAttribute('download', filename);
+
+  pom.style.display = 'none';
+  document.body.appendChild(pom);
+
+  pom.click();
+
+  document.body.removeChild(pom);
+}
+
+
+
+
+
+
+    function convert(){
+        let inputSelect = document.getElementById("inputTemp");
+        let intendSelect = document.getElementById("intendTemp");
+        let inptmpSelect = inputSelect.options[inputSelect.selectedIndex].text;
+        let inttmpSelect = intendSelect.options[intendSelect.selectedIndex].text;
+
+        let input = document.getElementById("frm1").value;
+       let studentResponse= document.getElementById("frm2").value;
+        console.log(inputSelect.selectedIndex);
+        console.log(intendSelect.selectedIndex);
+
+        console.log(input);
+        console.log(studentResponse);
+
+        console.log(inptmpSelect);//worthless
+        console.log(inttmpSelect);//worthless. Except for writing to a list
+        console.log(!Number.isNaN(input));
+        console.log(!Number.isNaN(studentResponse));
+        if(!Number.isNaN(input) 
+        && !Number.isNaN(studentResponse))
+        {
+        if (inputSelect.selectedIndex == 0) //Fahrenheit
+        {
+            switch(intendSelect.selectedIndex)
+            {
+                case 0://Fahrenheit
+                studentResponse = Math.round(studentResponse);
+                input = Math.round(input);
+                if(input == studentResponse){
+                    document.getElementById("outputCorrect").innerHTML = "correct";
+                    insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "correct");
+                }
+                    break;
+                case 1://Celcius
+                    input = Math.round(input);
+                    var intend = (input-32)*(5/9);
+                    studentResponse = Math.round(studentResponse);
+                    intend = Math.round(intend);
+                    if(intend == studentResponse){
+                        document.getElementById("outputCorrect").innerHTML = "correct";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "correct");
+                    }
+                    else{
+                        document.getElementById("outputCorrect").innerHTML = "incorrect";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "incorrect");
+                    }
+                    break;
+                case 2://Kelvin
+                    input = Math.round(input);
+                    var intend = (input-32)*(5/9) + 273.15;
+                    studentResponse = Math.round(studentResponse);
+                    intend = Math.round(intend);
+                    if(intend == studentResponse){
+                        document.getElementById("outputCorrect").innerHTML = "correct";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "correct");
+                    }
+                    else{
+                        document.getElementById("outputCorrect").innerHTML = "incorrect";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "incorrect");
+                    }
+                    break;
+                case 3://Rankine
+                    input = Math.round(input);
+                    var intend = input + 459.67;
+                    studentResponse = Math.round(studentResponse);
+                    intend = Math.round(intend);
+                    if(intend == studentResponse){
+                        document.getElementById("outputCorrect").innerHTML = "correct";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "correct");
+                    }
+                    else{
+                        document.getElementById("outputCorrect").innerHTML = "incorrect";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "incorrect");
+                    }
+                    break;
+            }
+        } else if(inputSelect.selectedIndex == 1)//Celcius input
+        {
+            switch(intendSelect.selectedIndex)
+            {
+
+                case 0://Fahrenheit
+                   input = Math.round(input);
+                    var intend = (input * (9/5))+32;
+                    studentResponse = Math.round(studentResponse);
+                    intend = Math.round(intend);
+                    if(intend == studentResponse){
+                        document.getElementById("outputCorrect").innerHTML = "correct";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "correct");
+                    }
+                    else{
+                        document.getElementById("outputCorrect").innerHTML = "incorrect";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "incorrect");
+                    }
+                    break;
+                case 1://Celcius
+                document.getElementById("outputCorrect").innerHTML = "correct";
+                insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "correct");
+                    break;
+                case 2://Kelvin
+                   input = Math.round(input);
+                    var intend = input + 273.15;
+                    studentResponse = Math.round(studentResponse);
+                    intend = Math.round(intend);
+                    if(intend == studentResponse){
+                        document.getElementById("outputCorrect").innerHTML = "correct";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "correct");
+                    }
+                    else{
+                        document.getElementById("outputCorrect").innerHTML = "incorrect";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "incorrect");
+                    }
+                    break;
+                case 3://Rankine
+               input = Math.round(input);
+                    var intend = (input *(9/5))+491.67;
+                    studentResponse = Math.round(studentResponse);
+                    intend = Math.round(intend);
+                    if(intend == studentResponse){
+                        document.getElementById("outputCorrect").innerHTML = "correct";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "correct");
+                    }
+                    else{
+                        document.getElementById("outputCorrect").innerHTML = "incorrect";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "incorrect");
+                    }
+                    break;
+                
+            }
+        }
+        else if(inputSelect.selectedIndex == 2)//Kelvin input
+        {
+            switch(intendSelect.selectedIndex)
+            {
+
+                case 0://Fahrenheit
+                  input = Math.round(input);
+                    var intend = (input - 273.15)*(9/5)+32;
+                    studentResponse = Math.round(studentResponse);
+                    intend = Math.round(intend);
+                    if(intend == studentResponse){
+                        document.getElementById("outputCorrect").innerHTML = "correct";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "correct");
+                    }
+                    else{
+                        document.getElementById("outputCorrect").innerHTML = "incorrect";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "incorrect");
+                    }
+                    break;
+                case 1://Celcius
+                 input = Math.round(input);
+                    var intend = input - 273.15;
+                    studentResponse = Math.round(studentResponse);
+                    intend = Math.round(intend);
+                    if(intend == studentResponse){
+                        document.getElementById("outputCorrect").innerHTML = "correct";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "correct");
+                    }
+                    else{
+                        document.getElementById("outputCorrect").innerHTML = "incorrect";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "incorrect");
+                    }
+                    break;
+                case 2://Kelvin
+                document.getElementById("outputCorrect").innerHTML = "correct";
+                insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "correct");
+                    break;
+                case 3://Rankine
+               input = Math.round(input);
+                    var intend = (input * (9/5));
+                    studentResponse = Math.round(studentResponse);
+                    intend = Math.round(intend);
+                    if(intend == studentResponse){
+                        document.getElementById("outputCorrect").innerHTML = "correct";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "correct");
+                    }
+                    else{
+                        document.getElementById("outputCorrect").innerHTML = "incorrect";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "incorrect");
+                    }
+                    break;
+                
+            }
+            
+        }
+        else if(inputSelect.selectedIndex == 3)//Rankine input
+        {
+            switch(intendSelect.selectedIndex)
+            {
+
+                case 0://Fahrenheit
+                  input = Math.round(input);
+                    var intend = (input - 459.67);
+                    studentResponse = Math.round(studentResponse);
+                    intend = Math.round(intend);
+                    if(intend == studentResponse){
+                        document.getElementById("outputCorrect").innerHTML = "correct";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "correct");
+                    }
+                    else{
+                        document.getElementById("outputCorrect").innerHTML = "incorrect";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "incorrect");
+                    }
+                    break;
+                case 1://Celcius
+                  input = Math.round(input);
+                    var intend =(input - 491.67)*(5/9);
+                    studentResponse = Math.round(studentResponse);
+                    intend = Math.round(intend);
+                    if(intend == studentResponse){
+                        document.getElementById("outputCorrect").innerHTML = "correct";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "correct");
+                    }
+                    else{
+                        document.getElementById("outputCorrect").innerHTML = "incorrect";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "incorrect");
+                    }
+                    break;
+                case 2://Kelvin
+               input = Math.round(input);
+                    var intend =(input*(5/9));
+                    studentResponse = Math.round(studentResponse);
+                    intend = Math.round(intend);
+                    if(intend == studentResponse){
+                        document.getElementById("outputCorrect").innerHTML = "correct";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "correct");
+                    }
+                    else{
+                        document.getElementById("outputCorrect").innerHTML = "incorrect";
+                        insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "incorrect");
+                    }
+                    
+                    break;
+                case 3://Rankine
+                 document.getElementById("outputCorrect").innerHTML = "correct";
+                 insertItem(inptmpSelect,input, inttmpSelect, studentResponse, "correct");
+                    break;
+                
+            }
+            
+        }
+    }
+}
+    
+</script>
+
+
+</body>
+</html>
